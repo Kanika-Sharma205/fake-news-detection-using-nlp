@@ -1,185 +1,342 @@
-# 🕵️ Fake News Detection with Knowledge Graph-Enhanced NLP
+<div align="center">
+  <img src="frontend/public/logo.svg" alt="FakeGuard AI Logo" width="90" />
+  <h1>FakeGuard AI</h1>
+  <p><strong>Hybrid NLP + Knowledge Graph fake news detection — with a live web interface</strong></p>
 
-> A hybrid machine learning pipeline that combines **TF-IDF text features** with a **Named Entity Knowledge Graph** to detect fake news articles — built using a Passive Aggressive Classifier (PAC).
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" />
+    <img src="https://img.shields.io/badge/FastAPI-0.136-009688?logo=fastapi&logoColor=white" />
+    <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" />
+    <img src="https://img.shields.io/badge/Accuracy-99.48%25-brightgreen" />
+    <img src="https://img.shields.io/badge/Dataset-44%2C898_articles-orange" />
+  </p>
 
-**Author:** Kanika Sharma
-
----
-
-## 📌 Overview
-
-This project implements two variants of a fake news detector and compares their performance:
-
-| Model | Approach | Accuracy |
-|-------|----------|----------|
-| **Text-only PAC** | TF-IDF features → Passive Aggressive Classifier | **99.48%** |
-| **Graph-enhanced PAC** | TF-IDF + Knowledge Graph entity features → PAC | **95.91%** |
-
-The graph-enhanced model enriches text features with structural signals extracted from a **co-occurrence knowledge graph** built from named entities (people, organisations, locations, dates, events) across the entire dataset.
+  <!-- ✏️  Replace the # below with your real deployed URL once hosted -->
+  <h3><a href="#">🌐 Live Demo →</a></h3>
+</div>
 
 ---
 
-## 📁 Project Structure
+## What is FakeGuard AI?
+
+FakeGuard AI is a machine learning system that classifies news articles as **real or fake** using two complementary signals:
+
+1. **TF-IDF text features** — learns which words and phrases are statistically associated with fake vs. real journalism
+2. **Knowledge Graph entity features** — builds a co-occurrence graph of named entities (people, organisations, places, dates, events) across the entire dataset and uses each article's position in that graph as additional evidence
+
+The graph-enhanced model achieves **95.91% accuracy** while also being interpretable — you can see exactly which entities it flagged and how strongly they lean fake or real. The text-only baseline reaches **99.48%** with near-perfect precision.
+
+---
+
+## Features
+
+- **Live prediction** — paste any headline + article body and get an instant verdict
+- **Random test cases** — pull real/fake articles directly from the 44,898-article training dataset with one click
+- **Full metrics dashboard** — accuracy, F1, precision/recall, confusion matrix, radar charts
+- **Knowledge graph explorer** — top entities ranked by connectivity, with fake/real ratio bars
+- **Training visualisations** — accuracy comparison, confusion matrices, entity graph plots embedded in the UI
+- **FastAPI backend** — typed REST API with auto-generated docs at `/docs`
+- **Fully separated frontend / backend** — React + Vite + Tailwind on the frontend, Python on the backend
+
+---
+
+## Project Structure
 
 ```
-FAKE_NEWS_DETECTION/
-├── models/
-│   ├── knowledge_graph.pkl       # Serialised NetworkX entity graph
-│   ├── pac_graph_model.pkl       # Trained Graph-enhanced PAC
-│   └── tfidf_vectorizer.pkl      # Fitted TF-IDF vectoriser
-├── Fake_News_Detection.ipynb     # Main notebook (end-to-end pipeline)
-├── Fake.csv                      # Fake news articles (Kaggle dataset)
-├── True.csv                      # Real news articles (Kaggle dataset)
-├── accuracy_comparison.png       # Bar chart: model accuracy comparison
-├── confusion_matrix_comparison.png
-└── entity_graph_comparison.png   # Knowledge graph subgraphs (FAKE vs REAL)
+Fake_New_Detection/
+│
+├── 🖥️  backend/                        # FastAPI REST API
+│   ├── app/
+│   │   ├── main.py                     # App entry point + all routes
+│   │   ├── predictor.py                # Model loading + inference logic
+│   │   ├── sampler.py                  # Random article sampler (reads CSVs)
+│   │   └── schemas.py                  # Pydantic request / response models
+│   ├── metrics/
+│   │   └── model_metrics.json          # Training metrics (auto-updated by notebook)
+│   ├── requirements.txt
+│   ├── start.sh                        # Linux / macOS startup
+│   └── start.bat                       # Windows startup
+│
+├── 🌐  frontend/                       # React + Vite + Tailwind CSS
+│   ├── public/
+│   │   ├── logo.svg                    # App logo (used in navbar)
+│   │   ├── favicon.svg                 # Browser tab icon
+│   │   └── images/                     # Training visualisation PNGs
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── Hero.tsx
+│   │   │   ├── ProblemStatement.tsx    # Why fake news matters
+│   │   │   ├── ModelApproach.tsx       # 6-step pipeline explainer
+│   │   │   ├── MetricsDashboard.tsx    # Charts, confusion matrices, entity bars
+│   │   │   ├── PredictionForm.tsx      # Live prediction UI
+│   │   │   └── Footer.tsx
+│   │   ├── types/index.ts              # Shared TypeScript interfaces
+│   │   └── App.tsx
+│   ├── package.json
+│   ├── vite.config.ts                  # Dev proxy: /api/* → localhost:8000
+│   ├── start.sh                        # Linux / macOS startup
+│   └── start.bat                       # Windows startup
+│
+├── 📓  training/
+│   ├── notebooks/
+│   │   └── Fake_News_Detection.ipynb   # Full end-to-end training pipeline
+│   └── presentations/
+│       └── Fake News Detection Using NLP.pptx
+│
+├── 🤖  models/                         # Generated by notebook (gitignored — large files)
+│   ├── knowledge_graph.pkl             # NetworkX graph: 128K nodes, 4.3M edges (112 MB)
+│   ├── pac_graph_model.pkl             # Trained PAC classifier
+│   └── tfidf_vectorizer.pkl            # Fitted TF-IDF vectorizer (50K vocabulary)
+│
+├── 🖼️  assets/                         # Training output charts
+│   ├── accuracy_comparison.png
+│   ├── confusion_matrix_comparison.png
+│   └── entity_graph_comparison.png
+│
+├── run-linux.sh                        # ⚡ Start everything (Linux / macOS)
+├── run-windows.bat                     # ⚡ Start everything (Windows)
+└── README.md
 ```
 
 ---
 
-## 🔧 How It Works
+## Model Overview
 
-### Phase 1 — Text-only Baseline
-1. **Data preparation** — Fake and real articles are labelled (1 / 0), merged, and the title + body are concatenated into a single `content` field.
-2. **TF-IDF vectorisation** — Top 50,000 unigrams/bigrams are extracted (stopwords removed, `max_df=0.7`).
-3. **Passive Aggressive Classifier** — Trained on 80% of the data; evaluated on the remaining 20%.
+Two classifier variants were trained on **44,898 labeled news articles** (23,481 fake + 21,417 real):
 
-### Phase 2 — Knowledge Graph Enhancement
-1. **Named Entity Recognition** — spaCy (`en_core_web_sm`) extracts `PERSON`, `ORG`, `GPE`, `DATE`, and `EVENT` entities from every article.
-2. **Graph construction** — A weighted NetworkX graph is built where nodes are entities and edges represent co-occurrence within the same article. Each node stores `fake_count` and `real_count` to track which class it appears in more often.
-3. **Graph feature extraction** — For each article's entity subgraph, 5 features are computed:
-   - Number of recognised entities
-   - Number of co-occurrence edges
-   - Average node degree
-   - Subgraph density
-   - Mean fake/real ratio of entities
-4. **Combined classifier** — TF-IDF features and graph features are horizontally stacked (`scipy.sparse.hstack`) and fed to a second PAC.
+| Model | Input Features | Test Accuracy | F1 (Fake) |
+|---|---|---|---|
+| **Text-Only PAC** | TF-IDF (50,000 dims) | **99.48%** | 0.9950 |
+| **Graph-Enhanced PAC** ✅ deployed | TF-IDF + 5 graph features | **95.91%** | 0.9622 |
+
+### How the Graph-Enhanced Model Works
+
+```
+Article text
+    │
+    ├─► spaCy NER ──► Entities (PERSON, ORG, GPE, DATE, EVENT)
+    │                      │
+    │              Knowledge Graph lookup
+    │                      │
+    │         ┌────────────┴────────────┐
+    │         │   5 graph features:     │
+    │         │   • num_entities        │
+    │         │   • num_edges           │
+    │         │   • avg_degree          │
+    │         │   • subgraph_density    │
+    │         │   • entity_fake_ratio   │
+    │         └────────────┬────────────┘
+    │                      │
+    ├─► TF-IDF ────────────┤
+    │  (50,000 dims)       │ hstack
+    │                      │
+    └──────────────────────►  Passive Aggressive Classifier
+                                        │
+                               REAL 🟢 / FAKE 🔴
+```
+
+### Knowledge Graph Stats
+
+| Stat | Value |
+|---|---|
+| Unique entities (nodes) | 127,994 |
+| Co-occurrence edges | 4,299,650 |
+| Avg entities per article | 19.3 |
+| Entity types | PERSON, ORG, GPE, DATE, EVENT |
 
 ---
 
-## 📊 Results
-
-### Model Accuracy Comparison
-![Accuracy Comparison](accuracy_comparison.png)
-
-### Confusion Matrices
-![Confusion Matrix Comparison](confusion_matrix_comparison.png)
-
-The text-only model achieves near-perfect accuracy on this dataset. The graph-enhanced variant trades a small drop in accuracy for richer interpretability — the knowledge graph visually reveals *which entities* are statistically associated with fake vs. real news.
-
-### Knowledge Graph — Entity Subgraphs
-![Entity Graph Comparison](entity_graph_comparison.png)
-
-Node colour encodes the fake/real ratio: **red nodes** tend to appear in fake news; **green nodes** tend to appear in real news. The graph clearly captures entity-level signals invisible to pure text models.
-
----
-
-## 🚀 Getting Started
+## Quickstart
 
 ### Prerequisites
-- Python 3.8+
-- A virtual environment (recommended)
 
-### Installation
+| Requirement | Version |
+|---|---|
+| Python | 3.10+ |
+| Node.js | 18+ |
+| pip | any recent |
+
+### Step 1 — Generate model files
+
+Run all cells in [`training/notebooks/Fake_News_Detection.ipynb`](training/notebooks/Fake_News_Detection.ipynb).
+
+This trains both models and saves to `models/`:
+- `tfidf_vectorizer.pkl`
+- `pac_graph_model.pkl`
+- `knowledge_graph.pkl` *(~112 MB — takes ~5 min to build)*
+
+It also auto-exports real run metrics to `backend/metrics/model_metrics.json`.
+
+> **Kaggle dataset setup** (one-time):
+> ```bash
+> mkdir -p ~/.kaggle
+> cp ~/Downloads/kaggle.json ~/.kaggle/
+> chmod 600 ~/.kaggle/kaggle.json   # Linux / macOS only
+> ```
+
+### Step 2 — Install backend dependencies
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Kanika-Sharma205/fake-news-detection-using-nlp.git
-cd fake-news-detection
-
-# 2A. Create and activate a virtual environment [ For Linux ]
-python -m venv ml_env
-source ml_env/bin/activate      # Windows: ml_env\Scripts\activate
-
-# 2B. Create and activate a virtual environment [ For Windows ]
-python -m venv ml_env
-ml_env\Scripts\activate
-
-# 3. Install dependencies
-pip install pandas numpy spacy networkx matplotlib scipy scikit-learn kaggle
-
-# 4. Download the spaCy English model
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r backend/requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
-### Dataset Setup (Kaggle API)
+### Step 3 — Run everything
+
+**Linux / macOS — single command:**
+```bash
+bash run-linux.sh
+```
+
+**Windows — single command:**
+```
+run-windows.bat
+```
+
+This opens both servers simultaneously. Or run them separately:
 
 ```bash
-# One-time setup: place your kaggle.json API token
-mkdir -p ~/.kaggle
-cp ~/Downloads/kaggle.json ~/.kaggle/
-chmod 600 ~/.kaggle/kaggle.json
+# Terminal 1 — backend  (http://localhost:8000)
+bash backend/start.sh             # Windows: backend\start.bat
+
+# Terminal 2 — frontend  (http://localhost:5173)
+bash frontend/start.sh            # Windows: frontend\start.bat
 ```
 
-The notebook's **Cell 3** will automatically download and extract `Fake.csv` and `True.csv` from the [Fake and Real News Dataset](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset) on Kaggle.
-
-### Run the Notebook
-
-```bash
-jupyter notebook Fake_News_Detection.ipynb
-```
-
-Run cells in order (Cell 0 → Cell 13). Cell 14 can be used in a **fresh session** to reload saved models without retraining.
+> ⏳ **First startup is slow** — loading the 112 MB knowledge graph takes ~30 seconds.
 
 ---
 
-## 🔮 Predicting on New Articles
+## API Reference
 
-After training (or reloading with Cell 14), call `predict_article()` with any text:
+Base URL: `http://localhost:8000`  
+Interactive docs: `http://localhost:8000/docs`
 
-```python
-predict_article(
-    "NASA confirms discovery of water ice on the Moon's south pole, "
-    "opening new possibilities for future lunar missions and human settlement."
-)
-# → REAL NEWS 🟢
+### `GET /api/health`
 
-predict_article(
-    "Obama secretly signed a deal to hand over the US military to the "
-    "United Nations in a shocking midnight ceremony last Tuesday."
-)
-# → FAKE NEWS 🔴
+Returns server + model status.
+
+```json
+{
+  "status": "ok",
+  "models_loaded": true,
+  "model_type": "TF-IDF + Knowledge Graph + Passive Aggressive Classifier"
+}
 ```
 
 ---
 
-## 💾 Saved Model Components
+### `GET /api/metrics`
 
-Three artefacts are saved to the `models/` folder (Cell 13):
-
-| File | Description |
-|------|-------------|
-| `pac_graph_model.pkl` | Trained Passive Aggressive Classifier (graph-enhanced) |
-| `tfidf_vectorizer.pkl` | Fitted TF-IDF vectoriser (50,000 features) |
-| `knowledge_graph.pkl` | NetworkX entity co-occurrence graph with fake/real counts |
+Returns the full metrics JSON from the last training run — accuracy, F1, confusion matrices, knowledge graph stats, top entities, dataset info, and training config.
 
 ---
 
-## 🛠️ Tech Stack
+### `GET /api/sample?type=real|fake|random`
 
+Returns a random article from the dataset. Every call returns a different article.
+
+| param `type` | Source |
+|---|---|
+| `real` | Random row from `True.csv` |
+| `fake` | Random row from `Fake.csv` |
+| `random` | Random from either file |
+
+**Response:**
+```json
+{
+  "headline": "Federal Reserve holds rates steady amid cooling inflation",
+  "content":  "WASHINGTON (Reuters) — The Federal Reserve...",
+  "label":    "real"
+}
+```
+
+---
+
+### `POST /api/predict`
+
+Classifies an article as real or fake.
+
+**Request:**
+```json
+{
+  "text": "Federal Reserve holds rates steady... WASHINGTON (Reuters)..."
+}
+```
+
+**Response:**
+```json
+{
+  "label":    "REAL NEWS",
+  "is_fake":  false,
+  "confidence": 0.9934,
+  "entities_detected": ["federal reserve", "washington", "reuters", "u.s."],
+  "graph_features": {
+    "num_entities": 4,
+    "num_edges":    6,
+    "avg_degree":   3.0,
+    "density":      0.5,
+    "fake_ratio":   0.14
+  },
+  "message": "This article appears to be legitimate news."
+}
+```
+
+> The frontend concatenates headline + body as `headline + ' ' + content` before sending — matching exactly how training data was prepared (`title + ' ' + text`).
+
+---
+
+## Website Sections
+
+| Section | Description |
+|---|---|
+| **Hero** | Tagline, key stats (44K articles, 99.48% accuracy, 128K graph entities), CTAs |
+| **Problem Statement** | Why fake news is a critical problem — stats, spread speed, economic damage |
+| **Our Approach** | 6-step pipeline cards explaining every stage of the model |
+| **Model Performance** | Side-by-side bar chart, radar charts, confusion matrices, entity fake-ratio bars, training PNGs |
+| **Try It** | Two-field form (headline + body), 🟢 Real / 🔴 Fake / 🎲 Random testcase buttons, live result card with graph features and detected entities |
+
+---
+
+## Tech Stack
+
+### Backend
 | Library | Purpose |
-|---------|---------|
-| `scikit-learn` | TF-IDF vectorisation, PAC, metrics |
-| `spaCy` | Named Entity Recognition (`en_core_web_sm`) |
-| `NetworkX` | Knowledge graph construction and analysis |
-| `scipy` | Sparse matrix operations (`hstack`) |
-| `pandas / numpy` | Data manipulation |
-| `matplotlib` | Visualisation |
+|---|---|
+| FastAPI | REST API framework |
+| scikit-learn | TF-IDF vectorizer + Passive Aggressive Classifier |
+| spaCy (`en_core_web_sm`) | Named Entity Recognition |
+| NetworkX | Knowledge graph construction + feature extraction |
+| SciPy | Sparse matrix feature fusion (`hstack`) |
+| pandas | CSV loading for the sample endpoint |
+| uvicorn | ASGI server |
+
+### Frontend
+| Library | Purpose |
+|---|---|
+| React 18 | UI framework |
+| Vite | Build tool + dev server |
+| TypeScript | Type safety |
+| Tailwind CSS | Styling |
+| Recharts | Bar charts, radar charts |
+| Inter (Google Fonts) | Typography |
 
 ---
 
-## 📈 Dataset
+## Dataset
 
 - **Source:** [Fake and Real News Dataset — Kaggle](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset)
-- **Size:** ~44,000 articles (balanced between fake and real)
-- **Split:** 80% training / 20% testing (stratified)
+- **Size:** 44,898 articles (23,481 fake + 21,417 real)
+- **Fields:** `title`, `text`, `subject`, `date`
+- **Split:** 80% train (35,918) / 20% test (8,980) — stratified
 
 ---
 
-## 📄 License
-
-This project is released for educational and research purposes.
-
----
-
-*Made with ❤️ by Kanika Sharma*
+<div align="center">
+  <img src="frontend/public/logo.svg" alt="FakeGuard AI" width="48" />
+  <br/>
+  <h2>Made with  ❤️  by <strong>KANIKA SHARMA</strong></h2>
+</div>

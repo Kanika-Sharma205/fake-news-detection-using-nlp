@@ -1,0 +1,131 @@
+{
+  "text_only_model": {
+    "name": "TF-IDF + Passive Aggressive Classifier",
+    "description": "Baseline model using TF-IDF vectorization (50,000 features) with a Passive Aggressive Classifier",
+    "accuracy": 0.9948,
+    "precision_real": 0.993,
+    "recall_real": 0.996,
+    "f1_real": 0.9945,
+    "precision_fake": 0.9964,
+    "recall_fake": 0.9936,
+    "f1_fake": 0.995,
+    "test_samples": 8980,
+    "confusion_matrix": {
+      "true_negative": 4267,
+      "false_positive": 17,
+      "false_negative": 30,
+      "true_positive": 4666
+    }
+  },
+  "graph_enhanced_model": {
+    "name": "TF-IDF + Knowledge Graph + PAC",
+    "description": "Enhanced model combining TF-IDF text features with 5 knowledge graph structural features",
+    "accuracy": 0.9591,
+    "precision_real": 0.9925,
+    "recall_real": 0.9213,
+    "f1_real": 0.9556,
+    "precision_fake": 0.9326,
+    "recall_fake": 0.9936,
+    "f1_fake": 0.9622,
+    "test_samples": 8980,
+    "confusion_matrix": {
+      "true_negative": 3947,
+      "false_positive": 337,
+      "false_negative": 30,
+      "true_positive": 4666
+    }
+  },
+  "knowledge_graph": {
+    "total_nodes": 127994,
+    "total_edges": 4299650,
+    "avg_entities_per_article": 19.3,
+    "entity_types": [
+      "PERSON",
+      "ORG",
+      "GPE",
+      "DATE",
+      "EVENT"
+    ],
+    "top_entities": [
+      {
+        "name": "reuters",
+        "connections": 60366,
+        "fake_ratio": 0.0109,
+        "dominant_class": "real"
+      },
+      {
+        "name": "trump",
+        "connections": 59339,
+        "fake_ratio": 0.5853,
+        "dominant_class": "fake"
+      },
+      {
+        "name": "donald trump",
+        "connections": 53740,
+        "fake_ratio": 0.4885,
+        "dominant_class": "real"
+      },
+      {
+        "name": "u.s.",
+        "connections": 46513,
+        "fake_ratio": 0.2027,
+        "dominant_class": "real"
+      },
+      {
+        "name": "the united states",
+        "connections": 33615,
+        "fake_ratio": 0.3713,
+        "dominant_class": "real"
+      },
+      {
+        "name": "tuesday",
+        "connections": 30164,
+        "fake_ratio": 0.2437,
+        "dominant_class": "real"
+      },
+      {
+        "name": "wednesday",
+        "connections": 28376,
+        "fake_ratio": 0.2178,
+        "dominant_class": "real"
+      },
+      {
+        "name": "washington",
+        "connections": 28304,
+        "fake_ratio": 0.1633,
+        "dominant_class": "real"
+      },
+      {
+        "name": "thursday",
+        "connections": 27596,
+        "fake_ratio": 0.2277,
+        "dominant_class": "real"
+      },
+      {
+        "name": "obama",
+        "connections": 27469,
+        "fake_ratio": 0.7092,
+        "dominant_class": "fake"
+      }
+    ]
+  },
+  "dataset": {
+    "total_articles": 44898,
+    "fake_articles": 23481,
+    "real_articles": 21417,
+    "train_samples": 35918,
+    "test_samples": 8980,
+    "features_tfidf": 50000,
+    "features_graph": 5,
+    "features_total": 50005
+  },
+  "training_config": {
+    "classifier": "PassiveAggressiveClassifier",
+    "max_iter": 50,
+    "random_state": 42,
+    "tfidf_max_features": 50000,
+    "tfidf_max_df": 0.7,
+    "train_test_split": 0.8,
+    "stratified": true
+  }
+}

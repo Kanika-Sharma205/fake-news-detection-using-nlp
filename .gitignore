@@ -1,4 +1,31 @@
-models
-.git
+# ML model artifacts (large binary files)
+training/data/
+/models
+# Raw datasets
 True.csv
 Fake.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Backend env
+backend/.env
+
+# Misc
+.git
+.claude
+.DS_Store
+*.log

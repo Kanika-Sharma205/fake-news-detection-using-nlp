@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+
+    <!-- Shield body fill: white/light with subtle teal hint -->
+    <linearGradient id="fShieldBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#EEF8FA"/>
+      <stop offset="100%" stop-color="#D8EFF4"/>
+    </linearGradient>
+
+    <!-- Shield stroke gradient -->
+    <linearGradient id="fShieldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1CB8A6"/>
+      <stop offset="100%" stop-color="#0F8C80"/>
+    </linearGradient>
+
+    <!-- Checkmark gradient -->
+    <linearGradient id="fCheckGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#24D9C4"/>
+      <stop offset="100%" stop-color="#0DA898"/>
+    </linearGradient>
+
+    <!-- ECG line gradient -->
+    <linearGradient id="fEcgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#1CB8A6" stop-opacity="0.5"/>
+      <stop offset="40%"  stop-color="#24D9C4"/>
+      <stop offset="60%"  stop-color="#24D9C4"/>
+      <stop offset="100%" stop-color="#1CB8A6" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <!-- Outer shield outline gradient -->
+    <linearGradient id="fOuterStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#2ACFBB"/>
+      <stop offset="100%" stop-color="#0E8C7E"/>
+    </linearGradient>
+
+  </defs>
+
+  <!-- ── OUTER SHIELD OUTLINE 1 (lightest, outermost) ── -->
+  <path d="M32,4
+           L24,5 L14,9 Q7,13 7,18
+           L7,35
+           Q7,52 32,60
+           Q57,52 57,35
+           L57,18 Q57,13 50,9 L40,5 Z"
+        fill="none"
+        stroke="#A8E8E2" stroke-width="1.2" opacity="0.8"/>
+
+  <!-- ── OUTER SHIELD OUTLINE 2 (medium) ── -->
+  <path d="M32,6
+           L25,7 L16,11 Q9,15 9,20
+           L9,35
+           Q9,51 32,58
+           Q55,51 55,35
+           L55,20 Q55,15 48,11 L39,7 Z"
+        fill="none"
+        stroke="#5DD8CC" stroke-width="1.2" opacity="0.7"/>
+
+  <!-- ── MAIN SHIELD BODY ── -->
+  <path d="M32,8
+           L26,9 L18,13 Q12,17 12,22
+           L12,35
+           Q12,50 32,57
+           Q52,50 52,35
+           L52,22 Q52,17 46,13 L38,9 Z"
+        fill="url(#fShieldBody)"
+        stroke="url(#fShieldStroke)" stroke-width="1.5"/>
+
+  <!-- ── INNER SHIELD BORDER (subtle depth) ── -->
+  <path d="M32,11
+           L27,12 L20,15 Q15,19 15,24
+           L15,35
+           Q15,48 32,54
+           Q49,48 49,35
+           L49,24 Q49,19 44,15 L37,12 Z"
+        fill="none"
+        stroke="#1CB8A6" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- ── CHECKMARK ── -->
+  <path d="M19,32 L28,41 L45,22"
+        fill="none"
+        stroke="url(#fCheckGrad)" stroke-width="3.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ── ECG / HEARTBEAT LINE ── -->
+  <path d="M12,44 L20,44 L22.5,41 L25,47 L27.5,37 L30,44 L36,44 L37.5,41 L39,44 L52,44"
+        fill="none"
+        stroke="url(#fEcgGrad)" stroke-width="1.3"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>
