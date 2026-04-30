@@ -20,7 +20,7 @@ pinned: false
   </p>
 
   <!-- ✏️  Replace the # below with your real deployed URL once hosted -->
-  <h3><a href="#">🌐 Live Demo →</a></h3>
+  <h3><a href="https://kanika-sharma-fakeguard-fake-news-detection-using-nlp.hf.space/">🌐 Live Demo →</a></h3>
 </div>
 
 ---
