@@ -1,6 +1,6 @@
 # ML model artifacts (large binary files)
 training/data/
-/models
+
 # Raw datasets
 True.csv
 Fake.csv
