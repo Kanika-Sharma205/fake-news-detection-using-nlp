@@ -102,7 +102,25 @@ def predict(text: str) -> dict:
 
     # Sigmoid to convert raw decision score to a 0–1 confidence value
     confidence = float(1 / (1 + np.exp(-abs(decision_score))))
-    is_fake = bool(prediction == 1)
+    classes = list(getattr(_model, "classes_", []))
+    fake_label = None
+    if classes:
+        for cls in classes:
+            if isinstance(cls, str) and "fake" in cls.lower():
+                fake_label = cls
+                break
+        if fake_label is None and all(
+            isinstance(cls, (int, np.integer, float, np.floating)) for cls in classes
+        ):
+            if 1 in classes:
+                fake_label = 1
+            else:
+                fake_label = max(classes)
+
+    if fake_label is None:
+        fake_label = 1
+
+    is_fake = bool(prediction == fake_label)
 
     return {
         "label": "FAKE NEWS" if is_fake else "REAL NEWS",
