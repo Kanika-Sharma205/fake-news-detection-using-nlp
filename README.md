@@ -1,3 +1,11 @@
+---
+title: FakeGuard Fake News Detection Using NLP
+emoji: 📰
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
 <div align="center">
   <img src="frontend/public/logo.svg" alt="FakeGuard AI Logo" width="90" />
   <h1>FakeGuard AI</h1>
