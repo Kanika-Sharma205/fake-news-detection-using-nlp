@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from .predictor import load_models, models_loaded, load_error, predict
@@ -10,6 +11,8 @@ from .sampler import get_random_sample
 from .schemas import HealthResponse, PredictRequest, PredictResponse, GraphFeatures, SampleResponse
 
 METRICS_PATH = Path(__file__).parent.parent / "metrics" / "model_metrics.json"
+STATIC_DIR = Path(__file__).parent / "static"
+INDEX_FILE = STATIC_DIR / "index.html"
 
 
 @asynccontextmanager
@@ -77,3 +80,25 @@ def predict_article(request: PredictRequest):
         graph_features=GraphFeatures(**result["graph_features"]),
         message=result["message"],
     )
+
+
+@app.get("/", include_in_schema=False)
+def serve_root():
+    if INDEX_FILE.exists():
+        return FileResponse(INDEX_FILE)
+    raise HTTPException(status_code=404, detail="Frontend not built.")
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def serve_spa(full_path: str):
+    if not STATIC_DIR.exists():
+        raise HTTPException(status_code=404, detail="Frontend not built.")
+
+    file_path = (STATIC_DIR / full_path).resolve()
+    if str(file_path).startswith(str(STATIC_DIR.resolve())) and file_path.is_file():
+        return FileResponse(file_path)
+
+    if INDEX_FILE.exists():
+        return FileResponse(INDEX_FILE)
+
+    raise HTTPException(status_code=404, detail="Frontend not built.")

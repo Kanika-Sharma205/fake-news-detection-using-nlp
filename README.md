@@ -245,6 +245,21 @@ bash frontend/start.sh            # Windows: frontend\start.bat
 
 ---
 
+## Deployment (Hugging Face Spaces — Docker, Free)
+
+This repo includes a ready-to-use Dockerfile for Hugging Face Spaces. It builds the frontend and serves it from FastAPI.
+
+**Steps:**
+1. Push this repo to GitHub (Git LFS enabled for `models/knowledge_graph.pkl`).
+2. Create a new Space → choose **Docker**.
+3. Connect your GitHub repo and let the Space build.
+
+**Notes:**
+- Free tier sleeps when idle (cold start is normal).
+- The API and UI are served from the same URL.
+
+---
+
 ## API Reference
 
 Base URL: `http://localhost:8000`  
