@@ -169,10 +169,20 @@ sudo apt-get install git-lfs
 git lfs install
 ```
 
+```bash
+# Windows (Chocolatey)
+choco install git-lfs -y
+
+git lfs install
+```
+
 **Clone and fetch LFS objects:**
 ```bash
-git clone <your-repo-url>
-cd Fake_New_Detection
+# USE ONLY ONE FROM THESE TWO
+git clone https://github.com/Kanika-Sharma205/fake-news-detection-using-nlp.git # via HTTP
+git clone git@github.com:Kanika-Sharma205/fake-news-detection-using-nlp.git # via SSH      
+
+cd fake-news-detection-using-nlp
 git lfs pull
 ```
 
