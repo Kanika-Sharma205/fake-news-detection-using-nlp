@@ -6,6 +6,7 @@ colorTo: indigo
 sdk: docker
 pinned: false
 ---
+[![Deployment Status](https://img.shields.io/badge/Deployment-Hugging%20Face-blue?logo=huggingface)](https://huggingface.co/spaces/Kanika-Sharma/FakeGuard_Fake-News-Detection-Using-NLP)
 <div align="center">
   <img src="frontend/public/logo.svg" alt="FakeGuard AI Logo" width="90" />
   <h1>FakeGuard AI</h1>
