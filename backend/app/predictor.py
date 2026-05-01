@@ -1,3 +1,4 @@
+import hashlib
 import pickle
 import numpy as np
 from pathlib import Path
@@ -56,21 +57,18 @@ def load_error() -> str | None:
     return _load_error
 
 
-def predict(text: str) -> dict:
-    if not _models_loaded:
-        raise RuntimeError(
-            _load_error or "Models are not loaded. Please check the server logs."
-        )
-
+def _build_features(text: str):
     doc = _nlp(text[:3000])
-    entities = [
-        ent.text.lower()
+    # Match training exactly: deduplicate, strip, and filter len > 2 (Cell 6 of notebook)
+    entities = list({
+        ent.text.lower().strip()
         for ent in doc.ents
         if ent.label_ in ["PERSON", "ORG", "GPE", "DATE", "EVENT"]
-    ]
+        and len(ent.text.strip()) > 2
+    })
 
     subgraph_nodes = [e for e in entities if e in _graph]
-    num_entities = len(entities)
+    num_entities = len(subgraph_nodes)
 
     if subgraph_nodes:
         import networkx as nx
@@ -96,13 +94,16 @@ def predict(text: str) -> dict:
     graph_features = np.array([[num_entities, num_edges, avg_degree, density, fake_ratio]])
     tfidf_features = _vectorizer.transform([text])
     combined = hstack([tfidf_features, graph_features])
+    return combined, entities, {
+        "num_entities": num_entities,
+        "num_edges": num_edges,
+        "avg_degree": round(avg_degree, 4),
+        "density": round(density, 4),
+        "fake_ratio": round(fake_ratio, 4),
+    }
 
-    prediction = _model.predict(combined)[0]
-    decision_score = float(_model.decision_function(combined)[0])
 
-    # Sigmoid to convert raw decision score to a 0–1 confidence value
-    confidence = float(1 / (1 + np.exp(-abs(decision_score))))
-    classes = list(getattr(_model, "classes_", []))
+def _resolve_fake_label(classes: list) -> object:
     fake_label = None
     if classes:
         for cls in classes:
@@ -120,6 +121,65 @@ def predict(text: str) -> dict:
     if fake_label is None:
         fake_label = 1
 
+    return fake_label
+
+
+def _file_sha256(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _to_builtin(value):
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, list):
+        return [_to_builtin(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _to_builtin(v) for k, v in value.items()}
+    return value
+
+
+def model_metadata() -> dict:
+    model_files = {}
+    for name in ("tfidf_vectorizer.pkl", "pac_graph_model.pkl", "knowledge_graph.pkl"):
+        path = MODELS_DIR / name
+        exists = path.exists()
+        model_files[name] = {
+            "exists": exists,
+            "size_bytes": path.stat().st_size if exists else 0,
+            "sha256": _file_sha256(path) if exists else None,
+        }
+
+    return {
+        "models_loaded": _models_loaded,
+        "load_error": _load_error,
+        "model_class": type(_model).__name__ if _model else None,
+        "vectorizer_class": type(_vectorizer).__name__ if _vectorizer else None,
+        "classes": _to_builtin(list(getattr(_model, "classes_", []))) if _model else [],
+        "model_files": model_files,
+    }
+
+
+def predict(text: str) -> dict:
+    if not _models_loaded:
+        raise RuntimeError(
+            _load_error or "Models are not loaded. Please check the server logs."
+        )
+
+    combined, entities, graph_features = _build_features(text)
+
+    prediction = _model.predict(combined)[0]
+    decision_score = float(_model.decision_function(combined)[0])
+
+    # Sigmoid to convert raw decision score to a 0–1 confidence value
+    confidence = float(1 / (1 + np.exp(-abs(decision_score))))
+    classes = list(getattr(_model, "classes_", []))
+    fake_label = _resolve_fake_label(classes)
     is_fake = bool(prediction == fake_label)
 
     return {
@@ -127,16 +187,34 @@ def predict(text: str) -> dict:
         "is_fake": is_fake,
         "confidence": round(confidence, 4),
         "entities_detected": list(set(entities))[:20],
-        "graph_features": {
-            "num_entities": num_entities,
-            "num_edges": num_edges,
-            "avg_degree": round(avg_degree, 4),
-            "density": round(density, 4),
-            "fake_ratio": round(fake_ratio, 4),
-        },
+        "graph_features": graph_features,
         "message": (
             "This article shows strong indicators of being fake news."
             if is_fake
             else "This article appears to be legitimate news."
         ),
+    }
+
+
+def debug_predict(text: str) -> dict:
+    if not _models_loaded:
+        raise RuntimeError(
+            _load_error or "Models are not loaded. Please check the server logs."
+        )
+
+    combined, entities, graph_features = _build_features(text)
+    prediction = _model.predict(combined)[0]
+    decision_score = float(_model.decision_function(combined)[0])
+    classes = list(getattr(_model, "classes_", []))
+    fake_label = _resolve_fake_label(classes)
+    is_fake = bool(prediction == fake_label)
+
+    return {
+        "prediction_raw": _to_builtin(prediction),
+        "decision_score": round(decision_score, 6),
+        "classes": _to_builtin(classes),
+        "fake_label": _to_builtin(fake_label),
+        "is_fake": is_fake,
+        "entities_detected": list(set(entities))[:20],
+        "graph_features": _to_builtin(graph_features),
     }

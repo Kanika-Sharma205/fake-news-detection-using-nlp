@@ -1,4 +1,5 @@
 import json
+import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -6,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .predictor import load_models, models_loaded, load_error, predict
+from .predictor import load_models, models_loaded, load_error, predict, debug_predict, model_metadata
 from .sampler import get_random_sample
 from .schemas import HealthResponse, PredictRequest, PredictResponse, GraphFeatures, SampleResponse
 
@@ -80,6 +81,27 @@ def predict_article(request: PredictRequest):
         graph_features=GraphFeatures(**result["graph_features"]),
         message=result["message"],
     )
+
+
+@app.post("/api/debug")
+def debug_article(request: PredictRequest):
+    if not request.text or len(request.text.strip()) < 20:
+        raise HTTPException(status_code=400, detail="Please provide at least 20 characters of text.")
+
+    if not models_loaded():
+        err = load_error() or "Models are not loaded. Run the training notebook first."
+        raise HTTPException(status_code=503, detail=err)
+
+    try:
+        return {
+            "metadata": model_metadata(),
+            "debug": debug_predict(request.text),
+        }
+    except Exception as exc:
+        return {
+            "error": str(exc),
+            "traceback": traceback.format_exc(),
+        }
 
 
 @app.get("/", include_in_schema=False)

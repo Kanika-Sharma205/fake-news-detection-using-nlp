@@ -5,8 +5,8 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ── Colours ───────────────────────────────────────────────
-RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'
-YELLOW='\033[1;33m'; BOLD='\033[1m'; RESET='\033[0m'
+RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; CYAN=$'\033[0;36m'
+YELLOW=$'\033[1;33m'; BOLD=$'\033[1m'; RESET=$'\033[0m'
 
 echo ""
 echo -e "${BOLD}  ┌──────────────────────────────────────┐${RESET}"
@@ -44,6 +44,13 @@ fi
 if [ ! -d "$ROOT/frontend/node_modules" ]; then
   echo -e "${CYAN}  Installing frontend dependencies...${RESET}"
   (cd "$ROOT/frontend" && npm install --silent)
+fi
+
+# ── Free port 8000 if already in use ─────────────────────
+if lsof -ti:8000 &>/dev/null; then
+  echo -e "${YELLOW}  Port 8000 in use — stopping existing process...${RESET}"
+  lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+  sleep 1
 fi
 
 # ── Start backend in background ───────────────────────────
