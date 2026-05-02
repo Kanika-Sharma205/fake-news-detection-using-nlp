@@ -394,6 +394,51 @@ Classifies an article as real or fake.
 
 ---
 
+---
+
+## Changelog
+
+### v0 — Initial Release *(May 2026)*
+
+**FakeGuard AI v0 is the first complete, fully working version of the project.**
+
+#### ML Pipeline
+- Trained on **44,898 labeled news articles** (23,481 fake · 21,417 real) from the Kaggle Fake and Real News dataset
+- **Text-Only PAC** baseline: TF-IDF (50,000 vocabulary) + Passive Aggressive Classifier → **99.48% accuracy**
+- **Graph-Enhanced PAC** (deployed): TF-IDF + 5 knowledge graph structural features → **95.91% accuracy**
+- Knowledge graph of **127,994 unique named entities** connected by **4,299,650 co-occurrence edges**, with per-node fake/real frequency counters
+- Entity extraction via **spaCy `en_core_web_sm`** — PERSON, ORG, GPE, DATE, EVENT labels
+- 5 graph features per article: `num_entities`, `num_edges`, `avg_degree`, `subgraph_density`, `entity_fake_ratio`
+- Feature fusion using **SciPy sparse `hstack`** (50,000 TF-IDF + 5 graph = 50,005 total)
+
+#### Backend (FastAPI)
+- `POST /api/predict` — full inference pipeline with confidence score and graph feature breakdown
+- `POST /api/debug` — raw decision score, class metadata, and SHA-256 model file fingerprints
+- `GET /api/sample?type=real|fake|random` — pulls live articles from `Fake.csv` / `True.csv`
+- `GET /api/metrics` — exports full training metrics (accuracy, F1, confusion matrix, top entities, dataset info)
+- `GET /api/health` — model load status
+
+#### Frontend (React + Vite + Tailwind)
+- **Hero** section with live stats (44K articles, 128K graph nodes, model accuracy)
+- **Problem Statement** — why fake news detection matters
+- **Model Approach** — 6-step pipeline walkthrough
+- **Performance Dashboard** — accuracy bar chart, radar charts, confusion matrices, entity fake-ratio bars, and training visualisation PNGs
+- **Live Predictor** — headline + body input, 🟢 Real / 🔴 Fake / 🎲 Random buttons, result card with detected entities and graph feature breakdown
+
+#### Deployment & Tooling
+- Deployed on **Hugging Face Spaces** (Docker, free tier) — FastAPI serves the built frontend as static files
+- GitHub Actions workflow: **auto-push to HuggingFace** on every push to `main`
+- GitHub Actions cron job: **daily ping** to keep the HF Space from going to sleep
+- `run-linux.sh` / `run-windows.bat` — one-command local startup (auto-detects venv, frees port 8000, starts both servers with colour-coded logs)
+
+#### Bug Fixes (caught and resolved during v0)
+- **Entity extraction mismatch** — backend was producing 2–3× more entities than training (no deduplication, no `len > 2` filter). Fixed to exactly match the notebook's `extract_entities_from_doc`: set-deduplication + `.strip()` + length filter. This was causing highly confident wrong predictions (e.g. FAKE articles predicted as REAL NEWS with 100% confidence).
+- **`num_entities` off-by-definition** — was counting all spaCy-detected entities instead of only those present in the knowledge graph. Fixed to count only graph-matched entities, matching training-time `len(valid)`.
+- **Terminal log colour escape codes** — `run-linux.sh` used single-quoted `'\033[...]'` strings which bash treats as literals. Fixed to `$'\033[...]'` so ANSI colours render correctly.
+- **Port conflict on restart** — `run-linux.sh` would crash with "address already in use" if a previous backend was still running. Fixed by adding a `lsof -ti:8000 | xargs kill -9` cleanup step before starting.
+
+---
+
 <div align="center">
   <img src="frontend/public/logo.svg" alt="FakeGuard AI" width="48" />
   <br/>
