@@ -19,6 +19,7 @@ pinned: false
     <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" />
     <img src="https://img.shields.io/badge/Accuracy-99.48%25-brightgreen" />
     <img src="https://img.shields.io/badge/Dataset-44%2C898_articles-orange" />
+    <img src="https://img.shields.io/badge/Deployment-Hugging%20Face-blue?logo=huggingface">
   </p>
 
   <!-- ✏️  Replace the # below with your real deployed URL once hosted -->
