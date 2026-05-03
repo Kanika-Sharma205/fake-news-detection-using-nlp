@@ -5,6 +5,7 @@ colorFrom: blue
 colorTo: indigo
 sdk: docker
 pinned: false
+license: mit
 ---
 <div align="center">
   <img src="frontend/public/logo.svg" alt="FakeGuard AI Logo" width="90" />
